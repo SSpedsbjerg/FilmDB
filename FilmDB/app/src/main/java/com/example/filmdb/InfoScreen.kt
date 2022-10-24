@@ -1,7 +1,6 @@
 package com.example.filmdb
 
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
@@ -19,7 +18,6 @@ class InfoScreen : AppCompatActivity() {
 
         val intent = intent
         position = intent.getIntExtra("id", 0)
-        Log.d("NewPosition", position.toString())
         var actionBar = getSupportActionBar()
 
         if (actionBar != null){
@@ -29,7 +27,6 @@ class InfoScreen : AppCompatActivity() {
         CoroutineScope(Dispatchers.Main).launch {
             UpdateText()
         }
-
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -44,15 +41,14 @@ class InfoScreen : AppCompatActivity() {
 
     suspend fun UpdateText(){
         val db = DBController(this,null)
-        var film = db.getFilmByID(position)
+        var film = db.getFilmByID(position + 1)
 
         val job = CoroutineScope(Dispatchers.IO).launch {
-            film = db.getFilmByID(position)
+            film = db.getFilmByID(position + 1)
         }
 
         job.join()
 
         findViewById<TextView>(R.id.filmView).text = film.toString()
     }
-
 }

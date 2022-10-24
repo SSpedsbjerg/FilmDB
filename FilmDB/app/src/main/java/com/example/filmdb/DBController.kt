@@ -5,7 +5,6 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.*
-import android.util.Log
 
 class DBController(context: Context, factory: SQLiteDatabase.CursorFactory?) :
     SQLiteOpenHelper(context, DBName, factory, DBVersion) {
@@ -21,11 +20,18 @@ class DBController(context: Context, factory: SQLiteDatabase.CursorFactory?) :
                 Genre + " TEXT, " +
                 Description + " TEXT " + ")")
         db.execSQL(query);
+        db.close()
     }
 
     override fun onUpgrade(db: SQLiteDatabase, p1: Int, p2: Int) {
         db.execSQL("DROP TABLE IF EXISTS " + TableName)
         onCreate(db)
+    }
+
+    suspend fun ClearDB(){
+        val db = this.readableDatabase
+        db.execSQL("DELETE FROM " + TableName);
+        db.close()
     }
 
     suspend fun addFilm(film : Film){
@@ -45,7 +51,6 @@ class DBController(context: Context, factory: SQLiteDatabase.CursorFactory?) :
 
     @SuppressLint("Range")
     suspend fun getFilmByID(id : Int) : Film?{
-        Log.d("DB ID", id.toString())
         val db = this.readableDatabase
         val reVal = db.rawQuery("SELECT * FROM " + TableName + " WHERE " + IDColumn + "=" + id, null)
         var film : Film? = null
@@ -59,7 +64,7 @@ class DBController(context: Context, factory: SQLiteDatabase.CursorFactory?) :
             reVal.getString(reVal.getColumnIndex(Description)),
         )
         }
-        Log.d("DB ID", id.toString())
+        db.close()
         return film
     }
 
@@ -78,6 +83,7 @@ class DBController(context: Context, factory: SQLiteDatabase.CursorFactory?) :
                 reVal.getString(reVal.getColumnIndex(Description))
             ))
         }
+        db.close()
         return films
     }
 
